@@ -10,6 +10,8 @@ defmodule ToyRobot.CommandRunner do
     end
   end
 
+  def run([]), do: nil
+  def run([_command | rest]), do: run(rest)
   def run([{:invalid, _command} | rest], simulation), do: run(rest, simulation)
 
   def run([:move | rest], simulation) do
@@ -47,6 +49,4 @@ defmodule ToyRobot.CommandRunner do
   end
 
   def run([], simulation), do: simulation
-  # def run([_command | rest]), do: run(rest)
-  # def run([]), do: nil
 end

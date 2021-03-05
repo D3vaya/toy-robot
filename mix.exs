@@ -8,7 +8,7 @@ defmodule ToyRobot.MixProject do
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      script: script()
+      escript: script()
     ]
   end
 
