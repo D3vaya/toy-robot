@@ -7,10 +7,19 @@ defmodule ToyRobot.Game.PlayerSupervisor do
   end
 
   def init(_args) do
+    Registry.start_link(keys: :unique, name: ToyRobot.Game.PlayerRegistry)
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def start_child(robot) do
-    DynamicSupervisor.start_child(__MODULE__, {Player, robot})
+  def start_child(robot, name) do
+    DynamicSupervisor.start_child(__MODULE__, {Player, [robot: robot, name: name]})
+  end
+
+  def move(name) do
+    name |> Player.process_name() |> Player.move()
+  end
+
+  def report(name) do
+    name |> Player.process_name() |> Player.report()
   end
 end
