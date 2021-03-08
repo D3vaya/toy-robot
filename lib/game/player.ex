@@ -1,23 +1,20 @@
 defmodule ToyRobot.Game.Player do
   use GenServer
 
-  alias ToyRobot.{Simulation, Table}
+  alias ToyRobot.{Robot, Simulation}
 
-  def start_link(robot: robot, name: name) do
-    GenServer.start_link(__MODULE__, robot, name: process_name(name))
+  def start_link(table: table, position: position, name: name) do
+    GenServer.start_link(__MODULE__, [table: table, position: position], name: process_name(name))
   end
 
-  def start(position) do
-    GenServer.start(__MODULE__, position)
+  def start(table, position) do
+    GenServer.start(__MODULE__, table: table, position: position)
   end
 
-  def init(robot) do
+  def init(table: table, position: position) do
     simulation = %Simulation{
-      table: %Table{
-        north_boundary: 4,
-        east_boundary: 4
-      },
-      robot: robot
+      table: table,
+      robot: struct!(Robot, position)
     }
 
     {:ok, simulation}

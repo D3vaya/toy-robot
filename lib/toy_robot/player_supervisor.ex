@@ -11,8 +11,11 @@ defmodule ToyRobot.Game.PlayerSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def start_child(robot, name) do
-    DynamicSupervisor.start_child(__MODULE__, {Player, [robot: robot, name: name]})
+  def start_child(table, position, name) do
+    DynamicSupervisor.start_child(
+      __MODULE__,
+      {Player, [table: table, position: position, name: name]}
+    )
   end
 
   def move(name) do
