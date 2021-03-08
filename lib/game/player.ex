@@ -3,6 +3,10 @@ defmodule ToyRobot.Game.Player do
 
   alias ToyRobot.{Simulation, Table}
 
+  def start_link(robot) do
+    GenServer.start_link(__MODULE__, robot)
+  end
+
   def start(position) do
     GenServer.start(__MODULE__, position)
   end
