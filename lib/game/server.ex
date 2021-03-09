@@ -18,6 +18,7 @@ defmodule ToyRobot.Game.Server do
      }}
   end
 
+  @spec place(atom | pid | {atom, any} | {:via, atom, any}, any, any) :: any
   def place(game, position, name) do
     GenServer.call(game, {:place, position, name})
   end
