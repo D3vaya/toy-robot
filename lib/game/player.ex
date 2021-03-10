@@ -1,7 +1,7 @@
 defmodule ToyRobot.Game.Player do
   use GenServer
 
-  alias ToyRobot.{Simulation, Robot}
+  alias ToyRobot.{Simulation, Robot, Game.Player}
 
   def start_link(registry_id: registry_id, table: table, position: position, name: name) do
     GenServer.start_link(__MODULE__, [table: table, position: position],

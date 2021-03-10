@@ -3,6 +3,7 @@ defmodule ToyRobot.Game.Server do
 
   alias ToyRobot.Table
   alias ToyRobot.Game.PlayerSupervisor
+  alias ToyRobot.Game.Players
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args)
@@ -35,11 +36,46 @@ defmodule ToyRobot.Game.Server do
     {:reply, Registry.count(registry_id), state}
   end
 
+  def handle_call({:valid_position, position}, _from, %{table: table} = state) do
+    reply =
+      if table |> Table.valid_position?(position) do
+        :ok
+      else
+        {:error, :out_of_bounds}
+      end
+
+    {:reply, reply, state}
+  end
+
+  def handle_call({:position_available, position}, _from, %{registry_id: registry_id} = state) do
+    position_available =
+      registry_id
+      |> Players.all()
+      |> Players.positions()
+      |> Players.position_available?(position)
+
+    reply = if position_available, do: :ok, else: {:error, :occupied}
+    {:reply, reply, state}
+  end
+
   def place(game, position, name) do
-    GenServer.call(game, {:place, position, name})
+    with :ok <- game |> valid_position(position),
+         :ok <- game |> position_available(position) do
+      GenServer.call(game, {:place, position, name})
+    else
+      error -> error
+    end
   end
 
   def player_count(game) do
     GenServer.call(game, :player_count)
+  end
+
+  def position_available(game, position) do
+    GenServer.call(game, {:position_available, position})
+  end
+
+  defp valid_position(game, position) do
+    GenServer.call(game, {:valid_position, position})
   end
 end

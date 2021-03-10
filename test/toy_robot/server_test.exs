@@ -11,4 +11,29 @@ defmodule ToyRobot.Game.ServerTest do
     :ok = Server.place(game, %{north: 0, east: 0, facing: :north}, "Rosie")
     assert Server.player_count(game) == 1
   end
+
+  test "No se puede poner un robot fuera de los límites", %{game: game} do
+    assert Server.place(
+             game,
+             %{north: 10, east: 10, facing: :north},
+             "Eve"
+           ) == {:error, :out_of_bounds}
+  end
+
+  test "No colocar un robot en el mismo espacio que otro robot", %{game: game} do
+    starting_position = %{north: 0, east: 0, facing: :north}
+
+    :ok =
+      Server.place(
+        game,
+        starting_position,
+        "Wall-E"
+      )
+
+    assert Server.place(
+             game,
+             starting_position,
+             "Robby"
+           ) == {:error, :occuped}
+  end
 end

@@ -50,7 +50,7 @@ defmodule ToyRobot.Game.PlayerSupervisorTest do
   } do
     :ok = PlayerSupervisor.move(registry_id, player_name)
     # la asignacion de mapas es como destructuracion en Js
-    %{north: north} = PlayerSupervisor.report(registry_id, player_name)
+    %{north: north} = PlayerSupervisor.report(registry_id, player_name) |> IO.inspect()
     assert north == 1
   end
 
