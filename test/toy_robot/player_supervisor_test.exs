@@ -3,10 +3,29 @@ defmodule ToyRobot.Game.PlayerSupervisorTest do
 
   alias ToyRobot.{Table, Game.PlayerSupervisor}
 
-  # setup do
-  #   {:ok, sup} = PlayerSupervisor.start_link([])
-  #   {:ok, %{sup: sup}}
-  # end
+  setup do
+    registry_id = "play-sup-test-#{UUID.uuid4()}" |> String.to_atom()
+    Registry.start_link(keys: :unique, name: registry_id)
+    starting_position = %{north: 0, east: 0, facing: :north}
+    player_name = "Izzy"
+
+    {:ok, _player} =
+      PlayerSupervisor.start_child(
+        registry_id,
+        build_table(),
+        starting_position,
+        player_name
+      )
+
+    [{_registered_player, _}] =
+      Registry.lookup(
+        registry_id,
+        player_name
+      )
+
+    {:ok, %{registry_id: registry_id, player_name: player_name}}
+  end
+
   def build_table do
     %Table{
       east_boundary: 4,
@@ -14,32 +33,32 @@ defmodule ToyRobot.Game.PlayerSupervisorTest do
     }
   end
 
-  test "Iniciar registro" do
-    registry = Process.whereis(ToyRobot.Game.PlayerRegistry)
-    assert registry
-  end
+  # test "Iniciar proceso player hijo", %{
+  #   registry_id: registry_id,
+  #   starting_position: starting_position
+  # } do
+  #   {:ok, player} =
+  #     PlayerSupervisor.start_child(registry_id, build_table(), starting_position, "Izzy")
 
-  test "Iniciar proceso player hijo" do
-    starting_position = %{north: 0, east: 0, facing: :north}
-    {:ok, player} = PlayerSupervisor.start_child(build_table(), starting_position, "Izzy")
+  #   [{registered_player, _}] = Registry.lookup(ToyRobot.Game.PlayerRegistry, "Izzy")
+  #   assert registered_player == player
+  # end
 
-    [{registered_player, _}] = Registry.lookup(ToyRobot.Game.PlayerRegistry, "Izzy")
-    assert registered_player == player
-  end
-
-  test "Mueve un robot hacia adelante" do
-    starting_position = %{north: 0, east: 0, facing: :north}
-    {:ok, _player} = PlayerSupervisor.start_child(build_table(), starting_position, "Charlie")
-    :ok = PlayerSupervisor.move("Charlie")
+  test "Mueve un robot hacia adelante", %{
+    registry_id: registry_id,
+    player_name: player_name
+  } do
+    :ok = PlayerSupervisor.move(registry_id, player_name)
     # la asignacion de mapas es como destructuracion en Js
-    %{north: north} = PlayerSupervisor.report("Charlie")
+    %{north: north} = PlayerSupervisor.report(registry_id, player_name)
     assert north == 1
   end
 
-  test "Reporte de la localización del robot" do
-    starting_position = %{north: 0, east: 0, facing: :north}
-    {:ok, _player} = PlayerSupervisor.start_child(build_table(), starting_position, "Davros")
-    %{north: north} = PlayerSupervisor.report("Davros")
+  test "Reporte de la localización del robot", %{
+    registry_id: registry_id,
+    player_name: player_name
+  } do
+    %{north: north} = PlayerSupervisor.report(registry_id, player_name)
     assert north == 0
   end
 end
